@@ -1,0 +1,788 @@
+[
+    {
+        "id": "5066d4d0.1932bc",
+        "type": "tab",
+        "label": "IKEA Switch with Color temperature",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2412e44a.58a75c",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Process remote control action",
+        "info": "",
+        "x": 920,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "554974c7.73f56c",
+        "type": "switch",
+        "z": "5066d4d0.1932bc",
+        "name": "What active device?",
+        "property": "action_group",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 1260,
+        "y": 240,
+        "wires": [
+            [
+                "b353c6ba.d84858"
+            ],
+            [
+                "93aa60e5.27c82"
+            ],
+            [
+                "243b5ee0.824e02"
+            ]
+        ]
+    },
+    {
+        "id": "85c3e96d.64c1c8",
+        "type": "change",
+        "z": "5066d4d0.1932bc",
+        "name": "Set action_group defaults",
+        "rules": [
+            {
+                "t": "set",
+                "p": "action_group_slaapkamer",
+                "pt": "flow",
+                "to": "9",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "action_group_zolder",
+                "pt": "flow",
+                "to": "6",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 330,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8965ff62.3db6b",
+        "type": "counter",
+        "z": "5066d4d0.1932bc",
+        "name": "Counter",
+        "init": "0",
+        "step": "1",
+        "lower": "",
+        "upper": "",
+        "mode": "increment",
+        "outputs": "1",
+        "x": 877,
+        "y": 180,
+        "wires": [
+            [
+                "db27b939.e6c818"
+            ]
+        ]
+    },
+    {
+        "id": "cea29264.c39ac",
+        "type": "trigger",
+        "z": "5066d4d0.1932bc",
+        "name": "Wait for 2 sec",
+        "op1": "",
+        "op2": "0",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "2",
+        "extend": true,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 897,
+        "y": 120,
+        "wires": [
+            [
+                "d1561589.d51228"
+            ]
+        ]
+    },
+    {
+        "id": "db27b939.e6c818",
+        "type": "switch",
+        "z": "5066d4d0.1932bc",
+        "name": "Double pressed?",
+        "property": "count",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "2",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1047,
+        "y": 180,
+        "wires": [
+            [
+                "ef4ab190.9996"
+            ]
+        ]
+    },
+    {
+        "id": "d1561589.d51228",
+        "type": "change",
+        "z": "5066d4d0.1932bc",
+        "name": "Reset",
+        "rules": [
+            {
+                "t": "set",
+                "p": "reset",
+                "pt": "msg",
+                "to": "foo",
+                "tot": "str"
+            },
+            {
+                "t": "delete",
+                "p": "payload",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1087,
+        "y": 120,
+        "wires": [
+            [
+                "8965ff62.3db6b"
+            ]
+        ]
+    },
+    {
+        "id": "ef4ab190.9996",
+        "type": "function",
+        "z": "5066d4d0.1932bc",
+        "name": "Set scene",
+        "func": "// Get current group and corresponding color\nvar action_group = flow.get(\"action_group\");\nvar device_color = action_group + \"_color_temp\";\nvar colortemp = 1;\nvar current_temp = flow.get(device_color);\n\n\n// Determine target color temperature based on current\nif ( current_temp >= 0 && current_temp < 300 ){\n    colortemp = 350;\n} else if ( current_temp > 400 ){\n    colortemp = 0;\n} else {\n    colortemp = 500;\n}\n\nmsg.payload = {\"color_temp\": colortemp };\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 960,
+        "y": 240,
+        "wires": [
+            [
+                "554974c7.73f56c"
+            ]
+        ]
+    },
+    {
+        "id": "16bb149e.1489ab",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Switch IKEA devices via Zigbee2MQTT",
+        "info": "",
+        "x": 1670,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ad3b5c59.bb34c",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Catch feedback and store values",
+        "info": "",
+        "x": 170,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "b353c6ba.d84858",
+        "type": "mqtt out",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_1_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_1_ct/set",
+        "qos": "",
+        "retain": "",
+        "broker": "e51a9804.c34f58",
+        "x": 1630,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "1f66f2e6.f1be8d",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "On",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"state\": \"ON\"}",
+        "payloadType": "json",
+        "x": 890,
+        "y": 440,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "f6dd70b5.d9487",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_1_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_1_ct",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 130,
+        "y": 440,
+        "wires": [
+            [
+                "d003b473.a081c8",
+                "4bb7f42c.e4193c"
+            ]
+        ]
+    },
+    {
+        "id": "d003b473.a081c8",
+        "type": "function",
+        "z": "5066d4d0.1932bc",
+        "name": "Save Value",
+        "func": "var state = msg.payload.state;\nvar brightness = msg.payload.brightness;\nvar color_temp = msg.payload.color_temp;\n\nflow.set(\"1_brightness\", brightness);\nflow.set(\"1_state\", state);\nflow.set(\"1_color_temp\", color_temp);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 370,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c139656.8e6ff98",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Off",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"state\": \"OFF\"}",
+        "payloadType": "json",
+        "x": 890,
+        "y": 480,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "92e5769e.578fe8",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_2_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_2_ct",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 130,
+        "y": 500,
+        "wires": [
+            [
+                "7312dfdc.55cdb",
+                "4bb7f42c.e4193c"
+            ]
+        ]
+    },
+    {
+        "id": "7312dfdc.55cdb",
+        "type": "function",
+        "z": "5066d4d0.1932bc",
+        "name": "Save Value",
+        "func": "var state      = msg.payload.state;\nvar brightness = msg.payload.brightness;\nvar color_temp = msg.payload.color_temp;\n\nflow.set(\"2_brightness\", brightness);\nflow.set(\"2_state\", state);\nflow.set(\"2_color_temp\", color_temp);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 370,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "93aa60e5.27c82",
+        "type": "mqtt out",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_2_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_2_ct/set",
+        "qos": "",
+        "retain": "",
+        "broker": "e51a9804.c34f58",
+        "x": 1630,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "362a9bad.ee7f34",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Brightness full",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"brightness\": \"255\"}",
+        "payloadType": "json",
+        "x": 910,
+        "y": 520,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "82f0364f.5e4f58",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Brightness low",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"brightness\": \"1\"}",
+        "payloadType": "json",
+        "x": 920,
+        "y": 560,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "574111c7.e08bc",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Color cold",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"color_temp\": \"1\"}",
+        "payloadType": "json",
+        "x": 900,
+        "y": 600,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "2e5a07f8.a83b58",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Color normal",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"color_temp\": \"350\"}",
+        "payloadType": "json",
+        "x": 910,
+        "y": 640,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "ec66eb2b.0f1c48",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Color warm",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"color_temp\": \"500\"}",
+        "payloadType": "json",
+        "x": 910,
+        "y": 680,
+        "wires": [
+            [
+                "49e79833.b6c238"
+            ]
+        ]
+    },
+    {
+        "id": "1557e5af.c178ba",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_3_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_3_ct",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 130,
+        "y": 560,
+        "wires": [
+            [
+                "7256e117.5ccf3",
+                "4bb7f42c.e4193c"
+            ]
+        ]
+    },
+    {
+        "id": "7256e117.5ccf3",
+        "type": "function",
+        "z": "5066d4d0.1932bc",
+        "name": "Save Value",
+        "func": "var state      = msg.payload.state;\nvar brightness = msg.payload.brightness;\nvar color_temp = msg.payload.color_temp;\n\nflow.set(\"3_brightness\", brightness);\nflow.set(\"3_state\", state);\nflow.set(\"3_color_temp\", color_temp);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 370,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7c1f4b3e.58e154",
+        "type": "inject",
+        "z": "5066d4d0.1932bc",
+        "name": "Init",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "85c3e96d.64c1c8"
+            ]
+        ]
+    },
+    {
+        "id": "4bb7f42c.e4193c",
+        "type": "debug",
+        "z": "5066d4d0.1932bc",
+        "name": "debug",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 350,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "5b3aeca9.9b0fc4",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Catch command from remote",
+        "info": "",
+        "x": 160,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "fac2fac2.729908",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Set initial values upon deploy",
+        "info": "",
+        "x": 160,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "49e79833.b6c238",
+        "type": "mqtt out",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_1_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_1_ct/set",
+        "qos": "",
+        "retain": "",
+        "broker": "e51a9804.c34f58",
+        "x": 1290,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "3ffeb0f4.4c671",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Switch Room 1",
+        "topic": "zigbee2mqtt/IKEA_Switch_Room_1",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 120,
+        "y": 180,
+        "wires": [
+            [
+                "826b5e80.d10c2",
+                "32ab477e.1a7d48"
+            ]
+        ]
+    },
+    {
+        "id": "e09a532d.25e78",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Switch Room 2",
+        "topic": "zigbee2mqtt/IKEA_Switch_Room_2",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 120,
+        "y": 240,
+        "wires": [
+            [
+                "826b5e80.d10c2",
+                "32ab477e.1a7d48"
+            ]
+        ]
+    },
+    {
+        "id": "5fa66102.26344",
+        "type": "mqtt in",
+        "z": "5066d4d0.1932bc",
+        "name": "Switch Room 3",
+        "topic": "zigbee2mqtt/IKEA_Switch_Room_3",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "e51a9804.c34f58",
+        "x": 120,
+        "y": 300,
+        "wires": [
+            [
+                "826b5e80.d10c2",
+                "32ab477e.1a7d48"
+            ]
+        ]
+    },
+    {
+        "id": "c983613c.001b6",
+        "type": "switch",
+        "z": "5066d4d0.1932bc",
+        "name": "What action?",
+        "property": "action",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "on",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "off",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "brightness_up",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "brightness_down",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "brightness_stop",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 5,
+        "x": 650,
+        "y": 240,
+        "wires": [
+            [
+                "8965ff62.3db6b",
+                "cea29264.c39ac"
+            ],
+            [],
+            [],
+            [],
+            []
+        ],
+        "info": "Split based on possible actions from KAKU Remote"
+    },
+    {
+        "id": "826b5e80.d10c2",
+        "type": "function",
+        "z": "5066d4d0.1932bc",
+        "name": "Set msg info",
+        "func": "var action_group = flow.get(\"action_group\");\nvar action       = msg.payload.click\nvar controller   = msg.topic\n\nif( controller == \"zigbee2mqtt/IKEA_Switch_Room_1\"){\n    action_group = 1 // Tradfri_Room_1_ct\n} else if ( controller == \"zigbee2mqtt/IKEA_Switch_Room_2\"){\n    action_group = 2 // Tradfri_Room_2_ct\n} else if ( controller == \"zigbee2mqtt/IKEA_Switch_Room_3\"){\n    action_group = 3 // Tradfri_Room_3_ct \n}\n\nflow.set(\"action\", action);\nflow.set(\"action_group\", action_group);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 430,
+        "y": 240,
+        "wires": [
+            [
+                "c983613c.001b6"
+            ]
+        ]
+    },
+    {
+        "id": "243b5ee0.824e02",
+        "type": "mqtt out",
+        "z": "5066d4d0.1932bc",
+        "name": "Tradfri_Room_3_ct",
+        "topic": "zigbee2mqtt/Tradfri_Room_3_ct/set",
+        "qos": "",
+        "retain": "",
+        "broker": "e51a9804.c34f58",
+        "x": 1630,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "32ab477e.1a7d48",
+        "type": "debug",
+        "z": "5066d4d0.1932bc",
+        "name": "debug",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "6630eb81.160ff4",
+        "type": "comment",
+        "z": "5066d4d0.1932bc",
+        "name": "Test commands",
+        "info": "",
+        "x": 900,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "e51a9804.c34f58",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "RPI1_ MQTT_Broker",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
