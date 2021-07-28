@@ -1,0 +1,318 @@
+[
+    {
+        "id": "26f7720.9c0b18e",
+        "type": "tab",
+        "label": "Zigbee2MQTT Availability vs. Telegram",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2d8d9c5e.b16a04",
+        "type": "mqtt in",
+        "z": "26f7720.9c0b18e",
+        "name": "Availability",
+        "topic": "zigbee2mqtt/+/availability",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "",
+        "x": 120,
+        "y": 240,
+        "wires": [
+            [
+                "c6f349d5.1fb278"
+            ]
+        ]
+    },
+    {
+        "id": "c6f349d5.1fb278",
+        "type": "switch",
+        "z": "26f7720.9c0b18e",
+        "name": "Online/offline?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "online",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "offline",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 300,
+        "y": 240,
+        "wires": [
+            [],
+            [
+                "769601ba.49e51",
+                "c69a9da7.8254f",
+                "d29b49d2.738b98"
+            ]
+        ]
+    },
+    {
+        "id": "17d9a1fa.362a4e",
+        "type": "telegram sender",
+        "z": "26f7720.9c0b18e",
+        "name": "Telegram message",
+        "bot": "",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 1110,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bdafc8d9.4ce0f8",
+        "type": "function",
+        "z": "26f7720.9c0b18e",
+        "name": "Prepare message",
+        "func": "// Build up message with device name (from topic; minus 'zigbee2mqtt/')\nvar message  = msg.topic.substr(12) + ' -  State is offline!'\n// and remove '/availability' from topic\nmessage = message.replace('/availability','')\n\n// Prepare Telegram data\nmsg.payload = {}\nmsg.payload.content = message\nmsg.payload.chatId  = 1234567890 // Telegram chat ID\nmsg.payload.type    = 'message' \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 890,
+        "y": 200,
+        "wires": [
+            [
+                "17d9a1fa.362a4e",
+                "9f8ee298.0005e"
+            ]
+        ]
+    },
+    {
+        "id": "769601ba.49e51",
+        "type": "counter",
+        "z": "26f7720.9c0b18e",
+        "name": "Counter",
+        "init": "0",
+        "step": "1",
+        "lower": "",
+        "upper": "",
+        "mode": "increment",
+        "outputs": "1",
+        "x": 860,
+        "y": 260,
+        "wires": [
+            [
+                "b7039024.ac796"
+            ]
+        ]
+    },
+    {
+        "id": "63a8e151.bef28",
+        "type": "change",
+        "z": "26f7720.9c0b18e",
+        "name": "Reset",
+        "rules": [
+            {
+                "t": "set",
+                "p": "reset",
+                "pt": "msg",
+                "to": "foo",
+                "tot": "str"
+            },
+            {
+                "t": "delete",
+                "p": "payload",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 670,
+        "y": 300,
+        "wires": [
+            [
+                "769601ba.49e51"
+            ]
+        ]
+    },
+    {
+        "id": "c69a9da7.8254f",
+        "type": "delay",
+        "z": "26f7720.9c0b18e",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 520,
+        "y": 200,
+        "wires": [
+            [
+                "5599d648.ac2c78"
+            ]
+        ]
+    },
+    {
+        "id": "b7039024.ac796",
+        "type": "function",
+        "z": "26f7720.9c0b18e",
+        "name": "Set 'message_state'",
+        "func": "var message_state = ''\nvar devices = flow.get(\"devices\")\n\nif ( msg.count > devices ){\n    // Zigbee2MQTT is probably shutdown/restarted    \n    message_state = 'NOK'; // Not OK to send out msg\n} else {  \n    // Few device(s) are offline > send Telegram alert\n    message_state = 'OK' // OK to send out msg\n} \n\nflow.set(\"message_state\", message_state);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 1120,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5599d648.ac2c78",
+        "type": "switch",
+        "z": "26f7720.9c0b18e",
+        "name": "OK to send?",
+        "property": "message_state",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "OK",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "NOK",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 690,
+        "y": 200,
+        "wires": [
+            [
+                "bdafc8d9.4ce0f8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "d29b49d2.738b98",
+        "type": "delay",
+        "z": "26f7720.9c0b18e",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 520,
+        "y": 300,
+        "wires": [
+            [
+                "63a8e151.bef28"
+            ]
+        ]
+    },
+    {
+        "id": "6da0b01.f2ef15",
+        "type": "comment",
+        "z": "26f7720.9c0b18e",
+        "name": "Check availability of devices and alert via Telegram upon 'offline' event",
+        "info": "When > 25 'offline' messages are generated, the Zigbee2MQTT service is shutdown/restarted\n\nTherefor a counter is build in that will check for multiple messages coming in within 3 seconds.\nIf so, no message will be send out. After 5 seconds, the counter is reset.",
+        "x": 310,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "9f8ee298.0005e",
+        "type": "debug",
+        "z": "26f7720.9c0b18e",
+        "d": true,
+        "name": "debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "dc18e821.5c7078",
+        "type": "comment",
+        "z": "26f7720.9c0b18e",
+        "name": "README",
+        "info": "NodeRED flow to send a Telegram message when a Zigbee device gets an 'Availability' timeout.\n\nEspecially helpful for non-pingable devices (e.g. battery powered devices) to raise an alert when the device didn't give any updates in 25 hrs.\n\nMore information on the 'Availability' feature and its settings in Zigbee2MQTT:\nhttps://www.zigbee2mqtt.io/information/availability.html\n\n**Prerequisites**:\n1. Availability configured in Zigbee2MQTT\n    In configuration.yaml, set ie.:\n    advanced:\n      availability_timeout: 86400 \n    86400 will give a timeout of 24 hrs\n2. Telegram Bot\n    Don't have one yet? See how to create one:\n    https://core.telegram.org/bots#3-how-do-i-create-a-bot\n2. NodeRED pallets:\n    node-red-contrib-telegrambot\n    node-red-contrib-counter\n\n**Configuration**:\n1. Configure the MQTT broker where Zigbee2MQTT messages are published + base_topic in        line with configuration.yaml files (default = zigbee2mqtt)\n2. Set the flow variable for the number of devices node: 'Set # device'\n    For number; take the amount of devices in your Zigbee network divided by 2\n    ie. 10 in case you have approx. 20 devices\n    Background: when Zigbee2MQTT shuts down/restarts, for all devices an 'offline' message is generated. To avoid false positive messages, the flow will ignore such scenario.\n2. Configure the Telegram message chat ID in node: 'Prepare message' line 9\n3. Configure the Telegram Bot settings in node: 'Telegram message'; set the Bot name and     token; ie. 1234567890:ABCDeF9hi-jKLMNOP_4UdISJDsIdJdimsdffd",
+        "x": 120,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "68abcc30.fc39a4",
+        "type": "inject",
+        "z": "26f7720.9c0b18e",
+        "name": "Init",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "6b9b8c2d.b61124"
+            ]
+        ]
+    },
+    {
+        "id": "6b9b8c2d.b61124",
+        "type": "change",
+        "z": "26f7720.9c0b18e",
+        "name": "Set # device",
+        "rules": [
+            {
+                "t": "set",
+                "p": "devices",
+                "pt": "flow",
+                "to": "10",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    }
+]
