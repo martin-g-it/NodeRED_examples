@@ -238,7 +238,7 @@
         "type": "comment",
         "z": "26f7720.9c0b18e",
         "name": "Check availability of devices and alert via Telegram upon 'offline' event",
-        "info": "When > 25 'offline' messages are generated, the Zigbee2MQTT service is shutdown/restarted\n\nTherefor a counter is build in that will check for multiple messages coming in within 3 seconds.\nIf so, no message will be send out. After 5 seconds, the counter is reset.",
+        "info": "",
         "x": 310,
         "y": 80,
         "wires": []
@@ -258,7 +258,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1070,
-        "y": 80,
+        "y": 140,
         "wires": []
     },
     {
