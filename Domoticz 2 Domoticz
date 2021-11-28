@@ -1,0 +1,166 @@
+[
+    {
+        "id": "51d4d3f019903a58",
+        "type": "tab",
+        "label": "Domoticz 2 Domoticz",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "1d08fa78457a080b",
+        "type": "mqtt in",
+        "z": "51d4d3f019903a58",
+        "name": "Domoticz out",
+        "topic": "domoticz/out",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "e51a9804.c34f58",
+        "nl": false,
+        "rap": false,
+        "x": 590,
+        "y": 260,
+        "wires": [
+            [
+                "b1c52e8901c40b15",
+                "bdd9f56ec047d788"
+            ]
+        ]
+    },
+    {
+        "id": "b1c52e8901c40b15",
+        "type": "function",
+        "z": "51d4d3f019903a58",
+        "name": "Convert msg",
+        "func": "var myObj = JSON.parse(msg.payload);\n\nvar old_msg = msg;\nvar new_idx = 999\n\nif (myObj.idx === 1){\n    new_idx = 136 // CPU Usage\n} else if (myObj.idx === 2)  {    \n    new_idx = 137 // Memory Usage\n} else if (myObj.idx === 3)  {    \n    new_idx = 138 // Process Usage\n} else if (myObj.idx === 4)  {    \n    new_idx = 339 // HDD Usage\n}\n\nmsg.payload = {\"command\":\"udevice\",\"idx\":new_idx,\"nvalue\":0,\"svalue\":myObj.svalue1};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 260,
+        "wires": [
+            [
+                "bdd9f56ec047d788",
+                "b3ca1df7af592320"
+            ]
+        ]
+    },
+    {
+        "id": "61bcdb3f631b5ed9",
+        "type": "mqtt out",
+        "z": "51d4d3f019903a58",
+        "name": "Domoticz in",
+        "topic": "domoticz_pi/in",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "e51a9804.c34f58",
+        "x": 1310,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "b3ca1df7af592320",
+        "type": "switch",
+        "z": "51d4d3f019903a58",
+        "name": "What device?",
+        "property": "payload.idx",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "999",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "136",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "137",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "138",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "339",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 5,
+        "x": 1060,
+        "y": 260,
+        "wires": [
+            [],
+            [
+                "61bcdb3f631b5ed9"
+            ],
+            [
+                "61bcdb3f631b5ed9"
+            ],
+            [
+                "61bcdb3f631b5ed9"
+            ],
+            [
+                "61bcdb3f631b5ed9"
+            ]
+        ]
+    },
+    {
+        "id": "bdd9f56ec047d788",
+        "type": "debug",
+        "z": "51d4d3f019903a58",
+        "d": true,
+        "name": "show",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "e51a9804.c34f58",
+        "type": "mqtt-broker",
+        "name": "RPI_ MQTT_Broker",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    }
+]
