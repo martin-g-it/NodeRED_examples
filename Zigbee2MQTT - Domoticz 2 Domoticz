@@ -31,7 +31,7 @@
         "type": "function",
         "z": "51d4d3f019903a58",
         "name": "Convert msg",
-        "func": "var myObj = JSON.parse(msg.payload);\n\nvar old_msg = msg;\nvar new_idx = 999\n\nif (myObj.idx === 1){\n    new_idx = 136 // CPU Usage\n} else if (myObj.idx === 2)  {    \n    new_idx = 137 // Memory Usage\n} else if (myObj.idx === 3)  {    \n    new_idx = 138 // Process Usage\n} else if (myObj.idx === 4)  {    \n    new_idx = 339 // HDD Usage\n}\n\nmsg.payload = {\"command\":\"udevice\",\"idx\":new_idx,\"nvalue\":0,\"svalue\":myObj.svalue1};\n\nreturn msg;",
+        "func": "var myObj = JSON.parse(msg.payload);\n\nvar old_msg = msg;\nvar new_idx = 999\n\nif (myObj.idx === 1){\n    new_idx = 136 // CPU Usage\n} else if (myObj.idx === 2)  {    \n    new_idx = 137 // Memory Usage\n} else if (myObj.idx === 3)  {    \n    new_idx = 138 // Process Usage\n} else if (myObj.idx === 4)  {    \n    new_idx = 339 // HDD Usage\n}\n\nmsg.payload = {\"command\":\"udevice\",\"idx\":new_idx,\"nvalue\":myObj.nvalue,\"svalue\":myObj.svalue1};\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
