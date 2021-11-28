@@ -4,6 +4,10 @@ NodeRED Examples
 ZigBee2MQTT - Aqara Remote vs. IKEA lights
 - Switch IKEA lights with the Aqara Remote
 
+ZigBee2MQTT - Domoticz 2 Domoticz
+- Update device on other Domoticz instance (when remote server is not working properly ie. due to different Domoticz versions)
+- Configure 
+
 Zigbee2MQTT - Color temperature with IKEA E1743
 - Change color temperature with a IKEA E1743 on/off switch
 - Requires palette: node-red-contrib-counter
