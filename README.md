@@ -1,6 +1,9 @@
 # NodeRED_examples
 NodeRED Examples
 
+Example NodeRED flows restart for Tibber feed timeout
+- Example NodeRED flow to restart NR flows based on the Tibber feed timeout
+
 ZigBee2MQTT - Aqara Remote vs. IKEA lights
 - Switch IKEA lights with the Aqara Remote
 
