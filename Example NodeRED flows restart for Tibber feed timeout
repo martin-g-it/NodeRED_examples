@@ -1,0 +1,346 @@
+[
+    {
+        "id": "e72e2c54ef1e6662",
+        "type": "tab",
+        "label": "Tibber feed",
+        "disabled": true,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "bf9e7307ee828d40",
+        "type": "debug",
+        "z": "e72e2c54ef1e6662",
+        "name": "debug Tibber feed",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 625,
+        "y": 260,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "97ace1873cd63eb8",
+        "type": "function",
+        "z": "e72e2c54ef1e6662",
+        "name": "Check int. (8 sec.)",
+        "func": "var now = Date.now();\nflow.set('Last_update_Tibber_feed', now)\n\nreturn null",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 220,
+        "wires": [
+            []
+        ],
+        "info": "https://flows.nodered.org/flow/9410e4cebcc4b68fae73"
+    },
+    {
+        "id": "fb22eee049a62a1f",
+        "type": "http request",
+        "z": "e72e2c54ef1e6662",
+        "name": "Restart NodeRED flows",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/flows",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "bearer",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            },
+            {
+                "keyType": "other",
+                "keyValue": "Node-RED-Deployment-Type",
+                "valueType": "other",
+                "valueValue": "reload"
+            }
+        ],
+        "x": 690,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4960b1b597842cf6",
+        "type": "inject",
+        "z": "e72e2c54ef1e6662",
+        "name": "Manual restart NR flows",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 240,
+        "y": 260,
+        "wires": [
+            [
+                "9c58fb0a4c6dec3e"
+            ]
+        ]
+    },
+    {
+        "id": "d1d4633c8719b1cf",
+        "type": "function",
+        "z": "e72e2c54ef1e6662",
+        "name": "Last update?",
+        "func": "var now = Date.now();\nvar lastupdate = flow.get('Last_update_Tibber_feed') || now;\nvar interval = (1000*120); // minimum interval between messages (ms)\n\n// Interval since last update\nmsg.payload = now - lastupdate\n\nif ( (now - lastupdate ) > interval) {\n  // More than 2 minutes\n  node.send([msg, null]);\n} else {\n  node.send([null, msg]);\n}\nreturn null",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 340,
+        "wires": [
+            [
+                "abf1e334e5527e82",
+                "e035f5b646ddc7e0"
+            ],
+            [
+                "db61b02a5333b89e"
+            ]
+        ]
+    },
+    {
+        "id": "064d332fac0f8380",
+        "type": "inject",
+        "z": "e72e2c54ef1e6662",
+        "name": "Interval",
+        "props": [],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "120",
+        "topic": "",
+        "x": 155,
+        "y": 340,
+        "wires": [
+            [
+                "d1d4633c8719b1cf"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "abf1e334e5527e82",
+        "type": "debug",
+        "z": "e72e2c54ef1e6662",
+        "name": "flows restart msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 385,
+        "y": 300,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "e035f5b646ddc7e0",
+        "type": "delay",
+        "z": "e72e2c54ef1e6662",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "50",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 2,
+        "x": 395,
+        "y": 340,
+        "wires": [
+            [
+                "6b7e693c023d28a1",
+                "9c58fb0a4c6dec3e"
+            ],
+            [
+                "e1092598a9b92cf8"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "db61b02a5333b89e",
+        "type": "debug",
+        "z": "e72e2c54ef1e6662",
+        "name": "safe",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 375,
+        "y": 380,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "e1092598a9b92cf8",
+        "type": "debug",
+        "z": "e72e2c54ef1e6662",
+        "name": "overflow msg ignored",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 495,
+        "y": 380,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "6b7e693c023d28a1",
+        "type": "debug",
+        "z": "e72e2c54ef1e6662",
+        "name": "restart",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 495,
+        "y": 300,
+        "wires": [],
+        "l": false
+    },
+    {
+        "id": "ad15040abc43f2c6",
+        "type": "telegram sender",
+        "z": "e72e2c54ef1e6662",
+        "name": "Telegram msg",
+        "bot": "",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 720,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "da96e21f61d74f31",
+        "type": "function",
+        "z": "e72e2c54ef1e6662",
+        "name": "Prepare msg",
+        "func": "// Prepare Telegram data\nvar message = ''\n\nmessage = 'Tibber feed restart'\n\nmsg.payload = {}\nmsg.payload.chatId = -XXXX // Chat ID\nmsg.payload.type    = 'message' \nmsg.payload.content = message\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 595,
+        "y": 380,
+        "wires": [
+            [
+                "ad15040abc43f2c6"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "35ad1c8f534ccf03",
+        "type": "tibber-feed",
+        "z": "e72e2c54ef1e6662",
+        "name": "Tibber feed",
+        "active": true,
+        "apiEndpointRef": "",
+        "homeId": "XXXXXXXXXXX",
+        "timestamp": true,
+        "power": "1",
+        "lastMeterConsumption": false,
+        "accumulatedConsumption": false,
+        "accumulatedProduction": false,
+        "accumulatedConsumptionLastHour": false,
+        "accumulatedProductionLastHour": false,
+        "accumulatedCost": "1",
+        "accumulatedReward": true,
+        "currency": false,
+        "minPower": false,
+        "averagePower": false,
+        "maxPower": "1",
+        "powerProduction": false,
+        "minPowerProduction": "1",
+        "maxPowerProduction": "1",
+        "lastMeterProduction": false,
+        "powerFactor": "1",
+        "voltagePhase1": false,
+        "voltagePhase2": false,
+        "voltagePhase3": false,
+        "currentL1": false,
+        "currentL2": false,
+        "currentL3": false,
+        "signalStrength": false,
+        "x": 500,
+        "y": 220,
+        "wires": [
+            [
+                "bf9e7307ee828d40",
+                "97ace1873cd63eb8"
+            ]
+        ]
+    },
+    {
+        "id": "9c58fb0a4c6dec3e",
+        "type": "function",
+        "z": "e72e2c54ef1e6662",
+        "name": "Set HTTP request",
+        "func": "msg.payload = {};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 495,
+        "y": 340,
+        "wires": [
+            [
+                "fb22eee049a62a1f",
+                "da96e21f61d74f31"
+            ]
+        ],
+        "l": false
+    }
+]
